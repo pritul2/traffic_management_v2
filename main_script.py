@@ -69,7 +69,7 @@ def get_frame():
     temp = np.zeros(refIm.shape,"uint8")
     timer = temp.copy()
     index=0
-    li=[[2,23],[4,4],[5,49],[7,32],[9,4],[10,43],[12,14],[14,3],[15,46],[17,17]]
+    li=[[0,44],[10,38],[9,0],[13,58]]
 
     red_img=cv2.imread("traffic_lights/red.png")
     yellow_img=cv2.imread("traffic_lights/yellow.png")
@@ -91,14 +91,14 @@ def get_frame():
         _, frame1 = vid1.read()
         
         #For lane2 #
-        index=(index+1)%10
+        index=(index+1)%4
         lane2_start_time = calcFrame(li[index][0],li[index][1])
         print("index",index)
         lane2_end_time = calcFrame(3, 25)
         vid2.set(1, lane2_start_time)
         _, frame2 = vid2.read()
 
-        index=(index+1)%10
+        index=(index+1)%4
         #For lane3#
         lane3_start_time = calcFrame(li[index][0],li[index][1])
         lane3_end_time = calcFrame(7, 26)
@@ -106,7 +106,7 @@ def get_frame():
         vid3.set(1, lane3_start_time)
         _, frame3 = vid3.read()
 
-        index=(index+1)%10
+        index=(index+1)%4
         #For lane4#
         lane4_start_time = calcFrame(li[index][0],li[index][1])
         lane4_end_time = calcFrame(12, 52)
@@ -114,7 +114,7 @@ def get_frame():
         vid4.set(1, lane4_start_time)
         _, frame4 = vid4.read()
 
-        index=(index+1)%10
+        index=(index+1)%4
         # display window. fWin is the final Video#
         st0 = np.hstack((temp, frame1, temp))
         st1 = np.hstack((frame4, timer, frame2))
@@ -125,9 +125,9 @@ def get_frame():
         print(temp.shape,st0.shape,red_img.shape)
         next_predected_time = 0
         if next_predected_time == 0:
-            predected_time = (process(frame1))//4
+            predected_time = (process(frame1))
         else:
-            predected_time = (next_predected_time)//4
+            predected_time = (next_predected_time)//2
 
         #print("predicted time is",predected_time)
         t0 = time.clock()
@@ -169,7 +169,7 @@ def get_frame():
                 next_predected_time=process(frame2)
             print(rem_time)
 
-        predected_time=next_predected_time//4
+        predected_time=next_predected_time
 
 
         #For Frame2#
@@ -209,7 +209,7 @@ def get_frame():
                 next_predected_time = process(frame3)
             print(rem_time)
 
-        predected_time=next_predected_time//4
+        predected_time=next_predected_time
 
 
         #For Frame3#
@@ -246,7 +246,7 @@ def get_frame():
                 next_predected_time = process(frame4)
             print(rem_time)
 
-        predected_time=next_predected_time//4
+        predected_time=next_predected_time
 
         #For Frame4#
         t0 = time.clock()
