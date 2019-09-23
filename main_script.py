@@ -17,6 +17,8 @@ from threading import *
 import time
 import yolo_main
 from flask import Flask, render_template, Response
+import boltiot
+from boltiot import Bolt
 
 app = Flask(__name__)
 
@@ -61,6 +63,12 @@ def process(frame):
 #Main function for input and output displaying#
 
 def get_frame():
+
+    api_key = "5bd495fd-c84e-4984-a1e1-25dc07c17b58"
+    device_id  = "BOLT1349464"
+    mybolt = Bolt(api_key, device_id)
+    response = mybolt.isOnline()
+    print(response)
 
     refIm = cv2.imread("refFrame.jpg")
     vid1 = cv2.VideoCapture('latestData.mp4')
@@ -130,7 +138,7 @@ def get_frame():
         #print("predicted time is",predected_time)
         t0 = time.clock()
         t0 = time.time()
-
+        mybolt.digitalWrite(0,'LOW')
         while (time.time()-t0<=predected_time):
             rem_time=predected_time-(time.time()-t0)
             print("frame 1")
@@ -169,7 +177,8 @@ def get_frame():
 
         predected_time=next_predected_time
 
-
+        mybolt.digitalWrite(0,'HIGH')
+        mybolt.digitalWrite(1,'LOW')
         #For Frame2#
         t0 = time.clock()
         t0 = time.time()
@@ -209,7 +218,8 @@ def get_frame():
 
         predected_time=next_predected_time
 
-
+        mybolt.digitalWrite(1,'HIGH')
+        mybolt.digitalWrite(2,'LOW')
         #For Frame3#
         t0 = time.clock()
         t0 = time.time()
@@ -245,7 +255,8 @@ def get_frame():
             print(rem_time)
 
         predected_time=next_predected_time
-
+        mybolt.digitalWrite(2,'HIGH')
+        mybolt.digitalWrite(3,'LOW')
         #For Frame4#
         t0 = time.clock()
         t0 = time.time()
@@ -277,7 +288,8 @@ def get_frame():
                 print("processing frame 1")
                 next_predected_time = process(frame1)
             print(rem_time)
-
+        mybolt.digitalWrite(3,'HIGH')
+        
 @app.route('/calc')
 def calc():
      return Response(get_frame(),mimetype='multipart/x-mixed-replace; boundary=frame')
