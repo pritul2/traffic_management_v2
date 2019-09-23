@@ -64,8 +64,8 @@ def process(frame):
 
 def get_frame():
 
-    api_key = "5bd495fd-c84e-4984-a1e1-25dc07c17b58"
-    device_id  = "BOLT1349464"
+    api_key = "xxxxxx"
+    device_id  = "xxxxxxx"
     mybolt = Bolt(api_key, device_id)
     response = mybolt.isOnline()
     print(response)
