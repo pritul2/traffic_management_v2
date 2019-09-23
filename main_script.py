@@ -48,14 +48,15 @@ def process(frame):
     arr=arr.reshape(-1,1)
 
     #Obtaining the time#
-    time = model.predict(arr)
-    print("predicted time is",time)
-
-    if time==0:
+    time = int(model.predict(arr)*0.58)
+    if time<30:
         time=30
         print("time not predicted default has been set")
+    print("predicted time is",time)
+
+    
     print("completed processing")
-    return time
+    return int(time)
 
 #Main function for input and output displaying#
 
@@ -69,7 +70,7 @@ def get_frame():
     temp = np.zeros(refIm.shape,"uint8")
     timer = temp.copy()
     index=0
-    li=[[0,44],[10,38],[9,0],[13,58]]
+    li=[[5,49],[7,32],[9,4],[10,43],[12,14],[14,3],[15,46],[2,20],[17,17]]
 
     red_img=cv2.imread("traffic_lights/red.png")
     yellow_img=cv2.imread("traffic_lights/yellow.png")
@@ -85,36 +86,33 @@ def get_frame():
         #For lane1 #
 
         lane1_start_time = calcFrame(li[index][0],li[index][1] )
-        lane1_end_time = calcFrame(2, 26)
         print("index",index)
         vid1.set(1, lane1_start_time)
         _, frame1 = vid1.read()
         
+        
+        index=(index+1)%9
         #For lane2 #
-        index=(index+1)%4
         lane2_start_time = calcFrame(li[index][0],li[index][1])
         print("index",index)
-        lane2_end_time = calcFrame(3, 25)
         vid2.set(1, lane2_start_time)
         _, frame2 = vid2.read()
 
-        index=(index+1)%4
+        index=(index+1)%9
         #For lane3#
         lane3_start_time = calcFrame(li[index][0],li[index][1])
-        lane3_end_time = calcFrame(7, 26)
         print("index",index)
         vid3.set(1, lane3_start_time)
         _, frame3 = vid3.read()
 
-        index=(index+1)%4
+        index=(index+1)%9
         #For lane4#
         lane4_start_time = calcFrame(li[index][0],li[index][1])
-        lane4_end_time = calcFrame(12, 52)
         print("index",index)
         vid4.set(1, lane4_start_time)
         _, frame4 = vid4.read()
 
-        index=(index+1)%4
+        index=(index+1)%9
         # display window. fWin is the final Video#
         st0 = np.hstack((temp, frame1, temp))
         st1 = np.hstack((frame4, timer, frame2))
@@ -125,9 +123,9 @@ def get_frame():
         print(temp.shape,st0.shape,red_img.shape)
         next_predected_time = 0
         if next_predected_time == 0:
-            predected_time = (process(frame1))
+            predected_time = int(process(frame1))
         else:
-            predected_time = (next_predected_time)//2
+            predected_time = int(next_predected_time)
 
         #print("predicted time is",predected_time)
         t0 = time.clock()
@@ -140,8 +138,8 @@ def get_frame():
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
             st2 = np.hstack((temp, frame3, temp))
-            #fWin = np.vstack((st0, st1, st2))
-            if rem_time<5:
+
+            if rem_time<7:
                 testing = np.hstack((yellow_img,red_img,red_img,red_img))
             else:
                 testing = np.hstack((green_img,red_img,red_img,red_img))
@@ -152,8 +150,8 @@ def get_frame():
 
             fWin = np.vstack((st0,st1,st2,testing))
             x, y = int(fWin.shape[0] / 2) + 50, int(fWin.shape[1] / 2) - 80
-            cv2.putText(fWin, 'Green Window for Lane 1:', (x-50, y-50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-            cv2.putText(fWin, str(predected_time), (x + 10, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
+            cv2.putText(fWin, 'Green Window for Lane 1:', (x-280, y-50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(fWin, str(int(rem_time)), (x - 200, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
 
 
             imgencode=cv2.imencode('.jpg',fWin)[1]
@@ -166,7 +164,7 @@ def get_frame():
             
             if int(rem_time)==5:
                 print("processing frame 2")
-                next_predected_time=process(frame2)
+                next_predected_time=(process(frame2))
             print(rem_time)
 
         predected_time=next_predected_time
@@ -186,7 +184,7 @@ def get_frame():
             
 
             #-- Traffic Lights --#
-            if rem_time<5:
+            if rem_time<7:
                 testing = np.hstack((red_img,yellow_img,red_img,red_img))
             else:
                 testing = np.hstack((red_img,green_img,red_img,red_img))
@@ -195,8 +193,8 @@ def get_frame():
             testing=cv2.resize(testing,(st0.shape[1],st0.shape[0]+200),None)
             fWin = np.vstack((st0,st1,st2,testing))
             x, y = int(fWin.shape[0] / 2) + 50, int(fWin.shape[1] / 2) - 80
-            cv2.putText(fWin, 'Green Window for Lane 2:', (x - 50, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-            cv2.putText(fWin, str(predected_time), (x + 10, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
+            cv2.putText(fWin, 'Green Window for Lane 2:', (x - 280, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(fWin, str(int(rem_time)), (x - 200, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
 
             
             imgencode=cv2.imencode('.jpg',fWin)[1]
@@ -206,7 +204,7 @@ def get_frame():
             
             if int(rem_time) == 5:
                 print("processing frame3")
-                next_predected_time = process(frame3)
+                next_predected_time = (process(frame3))
             print(rem_time)
 
         predected_time=next_predected_time
@@ -225,7 +223,7 @@ def get_frame():
             st1 = np.hstack((frame4, timer, frame2))
             st2 = np.hstack((temp, frame3, temp))
 
-            if rem_time<5:
+            if rem_time<7:
                 testing = np.hstack((red_img,red_img,yellow_img,red_img))
             else:
                 testing = np.hstack((red_img,red_img,green_img,red_img))
@@ -233,8 +231,8 @@ def get_frame():
             testing=cv2.resize(testing,(st0.shape[1],st0.shape[0]+200),None)
             fWin = np.vstack((st0, st1, st2,testing))
             x, y = int(fWin.shape[0] / 2) + 50, int(fWin.shape[1] / 2) - 80
-            cv2.putText(fWin, 'Green Window for Lane 3:', (x - 50, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-            cv2.putText(fWin, str(predected_time), (x + 10, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
+            cv2.putText(fWin, 'Green Window for Lane 3:', (x - 280, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(fWin, str(int(rem_time)), (x - 200, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
 
             imgencode=cv2.imencode('.jpg',fWin)[1]
             stringData=imgencode.tostring()
@@ -259,7 +257,7 @@ def get_frame():
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
             st2 = np.hstack((temp, frame3, temp))
-            if rem_time<5:
+            if rem_time<7:
                 testing = np.hstack((red_img,red_img,red_img,yellow_img))
             else:
                 testing = np.hstack((red_img,red_img,red_img,green_img))
@@ -267,8 +265,8 @@ def get_frame():
             testing=cv2.resize(testing,(st0.shape[1],st0.shape[0]+200),None)
             fWin = np.vstack((st0, st1, st2,testing))
             x, y = int(fWin.shape[0] / 2) + 50, int(fWin.shape[1] / 2) - 80
-            cv2.putText(fWin, 'Green Window for Lane 4:', (x - 50, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-            cv2.putText(fWin, str(predected_time), (x + 10, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
+            cv2.putText(fWin, 'Green Window for Lane 4:', (x - 280, y - 50), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(fWin, str(int(rem_time)), (x - 200, y), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 255))
 
             imgencode=cv2.imencode('.jpg',fWin)[1]
             stringData=imgencode.tostring()
