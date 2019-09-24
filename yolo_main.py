@@ -54,14 +54,6 @@ def detect(img):
 	count=0
 	for i in range(len(boxes)):
 		if i in indexes.flatten():
-			# extract the bounding box coordinates
-			(x, y) = (boxes[i][0], boxes[i][1])
-			(w, h) = (boxes[i][2], boxes[i][3])
-
-			# draw a bounding box rectangle and label on the image
-			#color = [int(c) for c in COLORS[classIDs[i]]]
-			cv2.rectangle(img, (x, y), (x + w, y + h), (0,255,0), 2)
 			count=count+1
 
 	return count
-
