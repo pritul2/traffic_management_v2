@@ -44,21 +44,27 @@ def process(frame):
     frame=cv2.bitwise_and(frame,frame,mask=roi)
 
     #Yolo Logic#
+    start=time.time()
     num=yolo_main.detect(frame)
+    end=time.time()
+    print("time taken for detection",end-start)
     print("detected vehicles",num)
     arr=np.array(num)
     arr=arr.reshape(-1,1)
 
     #Obtaining the time#
-    time = int(model.predict(arr)*0.58)
-    if time<30:
-        time=30
+    
+    _time = int(model.predict(arr)*0.58)
+    
+    
+    if _time<30 and num<1:
+        _time=30
         print("time not predicted default has been set")
-    print("predicted time is",time)
+    print("predicted time is",_time)
 
     
     print("completed processing")
-    return int(time)
+    return int(_time)
 
 #Main function for input and output displaying#
 
@@ -71,14 +77,16 @@ def get_frame():
     print(response)
 
     refIm = cv2.imread("refFrame.jpg")
-    vid1 = cv2.VideoCapture('latestData.mp4')
-    vid2 = cv2.VideoCapture('latestData.mp4')
-    vid3 = cv2.VideoCapture('latestData.mp4')
-    vid4 = cv2.VideoCapture('latestData.mp4')
-    temp = np.zeros(refIm.shape,"uint8")
+    vid1 = cv2.VideoCapture('TrafficDataSet.mp4')
+    vid2 = cv2.VideoCapture('TrafficDataSet.mp4')
+    vid3 = cv2.VideoCapture('TrafficDataSet.mp4')
+    vid4 = cv2.VideoCapture('TrafficDataSet.mp4')
+    #temp = np.zeros(((vid1.read())[1].shape[0],(vid1.read())[1].shape[1]),"uint8")
+    _, frame1 = vid2.read()
+    temp = np.zeros(frame1.shape,"uint8")
     timer = temp.copy()
     index=0
-    li=[[5,49],[7,32],[9,4],[10,43],[12,14],[14,3],[15,46],[2,20],[17,17]]
+    li=[[2,37],[2,52],[4,1],[8,51],[10,8],[11,8],[12,21],[14,6],[15,34]]
 
     red_img=cv2.imread("traffic_lights/red.png")
     yellow_img=cv2.imread("traffic_lights/yellow.png")
@@ -94,7 +102,6 @@ def get_frame():
         #For lane1 #
 
         lane1_start_time = calcFrame(li[index][0],li[index][1] )
-        print("index",index)
         vid1.set(1, lane1_start_time)
         _, frame1 = vid1.read()
         
@@ -102,21 +109,18 @@ def get_frame():
         index=(index+1)%9
         #For lane2 #
         lane2_start_time = calcFrame(li[index][0],li[index][1])
-        print("index",index)
         vid2.set(1, lane2_start_time)
         _, frame2 = vid2.read()
 
         index=(index+1)%9
         #For lane3#
         lane3_start_time = calcFrame(li[index][0],li[index][1])
-        print("index",index)
         vid3.set(1, lane3_start_time)
         _, frame3 = vid3.read()
 
         index=(index+1)%9
         #For lane4#
         lane4_start_time = calcFrame(li[index][0],li[index][1])
-        print("index",index)
         vid4.set(1, lane4_start_time)
         _, frame4 = vid4.read()
 
@@ -136,12 +140,11 @@ def get_frame():
             predected_time = int(next_predected_time)
 
         #print("predicted time is",predected_time)
-        t0 = time.clock()
         t0 = time.time()
         mybolt.digitalWrite(0,'LOW')
+        print("frame 1")
         while (time.time()-t0<=predected_time):
             rem_time=predected_time-(time.time()-t0)
-            print("frame 1")
             ret1, frame1 = vid1.read()
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
@@ -173,19 +176,17 @@ def get_frame():
             if int(rem_time)==5:
                 print("processing frame 2")
                 next_predected_time=(process(frame2))
-            print(rem_time)
 
         predected_time=next_predected_time
 
         mybolt.digitalWrite(0,'HIGH')
         mybolt.digitalWrite(1,'LOW')
         #For Frame2#
-        t0 = time.clock()
         t0 = time.time()
         next_predected_time = 0
+        print("frame 2")
         while (time.time() - t0 <= predected_time):
             rem_time = predected_time - (time.time() - t0)
-            print("frame 2")
             ret2, frame2 = vid2.read()
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
@@ -214,20 +215,18 @@ def get_frame():
             if int(rem_time) == 5:
                 print("processing frame3")
                 next_predected_time = (process(frame3))
-            print(rem_time)
 
         predected_time=next_predected_time
 
         mybolt.digitalWrite(1,'HIGH')
         mybolt.digitalWrite(2,'LOW')
         #For Frame3#
-        t0 = time.clock()
         t0 = time.time()
         next_predected_time = 0
+        print("frame 3")
         while (time.time() - t0 <= predected_time):
 
             rem_time = predected_time - (time.time() - t0)
-            print("frame 3")
             ret2, frame3 = vid3.read()
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
@@ -252,18 +251,16 @@ def get_frame():
             if int(rem_time) == 5:
                 print("processing frame4")
                 next_predected_time = process(frame4)
-            print(rem_time)
 
         predected_time=next_predected_time
         mybolt.digitalWrite(2,'HIGH')
         mybolt.digitalWrite(3,'LOW')
         #For Frame4#
-        t0 = time.clock()
         t0 = time.time()
         next_predected_time = 0
+        print("frame 4")
         while (time.time() - t0 <= predected_time):
             rem_time = predected_time - (time.time() - t0)
-            print("frame 4")
             ret2, frame4 = vid4.read()
             st0 = np.hstack((temp, frame1, temp))
             st1 = np.hstack((frame4, timer, frame2))
@@ -287,7 +284,6 @@ def get_frame():
             if int(rem_time) == 5:
                 print("processing frame 1")
                 next_predected_time = process(frame1)
-            print(rem_time)
         mybolt.digitalWrite(3,'HIGH')
         
 @app.route('/calc')
